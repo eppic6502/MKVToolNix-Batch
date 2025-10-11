@@ -31,4 +31,4 @@ You can then run the script from your terminal:
 
 ## Note
 
-This script was created for macOS runing Bash 5.3 and may behave differently on Linux and older Bash versions.
+This script was created for macOS runing Bash 5.3 and may behave differently on Linux or older Bash versions.
