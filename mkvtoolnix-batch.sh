@@ -8,11 +8,11 @@
 set -euo pipefail
 shopt -s nullglob nocaseglob
 
-# ANSI colours
-readonly GREEN="\033[32m"
-readonly RED="\033[31m"
-readonly BLUE="\033[34m"
-readonly RESET="\033[0m"
+# colours
+readonly GREEN=$'\033[32m'
+readonly RED=$'\033[31m'
+readonly BLUE=$'\033[34m'
+readonly RESET=$'\033[0m'
 
 # Check dependencies
 for cmd in mkvmerge mkvpropedit jd; do
