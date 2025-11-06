@@ -8,8 +8,9 @@
 set -euo pipefail
 shopt -s nullglob nocaseglob
 
-readonly RED="\033[31m"
+# ANSI colours
 readonly GREEN="\033[32m"
+readonly RED="\033[31m"
 readonly BLUE="\033[34m"
 readonly RESET="\033[0m"
 
@@ -23,7 +24,7 @@ done
 
 # Validate arguments
 if [[ "$#" -eq 0 || ! "$1" =~ \.json$ ]]; then
-    printf "${RED}Error: No or invalid options file provided.${RESET}\n"
+    printf "%sError: No or invalid options file provided.%s\n" "$RED" "$RESET" >&2
     printf "Usage: source/%s [options].json\n" "$(basename "$0")"
     exit 1
 fi
@@ -32,7 +33,7 @@ fi
 opt_file="$(realpath "$1")"
 
 if [[ ! -f "$opt_file" ]]; then
-    printf "${RED}Error: Options file not found: %s${RESET}\n" "$1"
+    printf "%sError: Options file not found: %s%s\n" "$RED" "$1" "$RESET" >&2
     exit 1
 fi
 
@@ -69,7 +70,7 @@ filtered_opt=$(jq '
 ' "$opt_file")
 
 if [[ -z "$filtered_opt" || "$filtered_opt" == "null" ]]; then
-    printf "${RED}Error: Failed to parse JSON options file.${RESET}\n"
+    printf "%sError: Failed to parse JSON options file.%s\n" "$RED" "$RESET" >&2
     exit 1
 fi
 
@@ -85,7 +86,7 @@ mkvpe_opt=(--delete title --delete date --set muxing-application="" --set writin
 mapfile -d '' video_files < <(find . -maxdepth 1 -type f \( -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.webm" \) -print0)
 
 if [[ ${#video_files[@]} -eq 0 ]]; then
-    printf "${RED}No video files found in the provided directory.${RESET}\n"
+    printf "%sNo video files found in the provided directory.%s\n" "$RED" "$RESET" >&2
     exit 1
 fi
 
@@ -96,17 +97,17 @@ for v in "${video_files[@]}"; do
     mkdir -p "$output_dir"
     output="$output_dir/${file_name}.mkv"
     if [[ -f "$output" ]]; then
-        printf "Skipping: ${BLUE}%s${RESET} already exists.\n" "$(basename "$output")"
+        printf "Skipping: %s%s%s already exists.\n" "$BLUE" "$(basename "$output")" "$RESET"
         continue
     fi
     if ! mkvmerge @"$temp_opt" -o "$output" "$v"; then
-        printf "${RED}Error processing file: %s${RESET}\n" "$(basename "$v")"
+        printf "%sError processing file: %s%s\n" "$RED" "$(basename "$v")" "$RESET" >&2
         exit 1
     fi
     if ! mkvpropedit "$output" "${mkvpe_opt[@]}"; then
-        printf "${RED}Error removing metadata from file: %s${RESET}\n" "$(basename "$v")"
+        printf "%sError removing metadata from file: %s%s\n" "$RED" "$(basename "$v")" "$RESET" >&2
         exit 1
     fi
 done
 
-printf "\n${GREEN}All %d files processed successfully.${RESET}\n" "${#video_files[@]}"
+printf "\n%sAll %d files processed successfully.%s\n" "$GREEN" "${#video_files[@]}" "$RESET"
